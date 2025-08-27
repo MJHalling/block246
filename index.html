@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Block Schedule | 246</title>
+<style>
+  body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #2b2b2b;
+    color: #e0e0e0;
+    animation: antiIdle 2m infinite;
+  }
+  @keyframes antiIdle {
+    0%, 100% { opacity: 1 }
+    50% { opacity: 0.999 }
+  }
+  h1 {
+    text-align: center;
+    margin: 24px 0 0;
+    font-size: 2em;
+    color: #e0e0e0;
+  }
+  #subtitle {
+    text-align: center;
+    font-size: 1em;
+    margin-bottom: 20px;
+    color: #aaa;
+  }
+  .schedule {
+    max-width: 600px;
+    margin: 0 auto 40px;
+    border: 1px solid #444;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .block {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    transition: background-color 0.3s ease;
+  }
+  .num-col {
+    width: 60px;
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+  .label-col {
+    flex: 1;
+    padding: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+</style>
+</head>
+<body>
+  <h1>Block Schedule | 246</h1>
+  <div id="subtitle"></div>
+  <div class="schedule" id="schedule"></div>
+
+<script>
+  const blocks = [
+    { num: "2", label: "2nd Period", start: "8:10 AM", end: "9:50 AM", silk: "#FF8C00", numText: "#FFF" },
+    { num: "4", label: "4th Period", start: "10:05 AM", end: "11:45 AM", silk: "#4B0082", numText: "#FFF" },
+    { num: "6", label: "6th Period", start: "1:00 PM", end: "2:40 PM", silk: "#DC143C", numText: "#FFF" }
+  ];
+
+  function getCurrentTimeInSeconds() {
+    const now = new Date();
+    return now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+  }
+
+  function timeToSeconds(timeStr) {
+    const [time, meridianRaw] = timeStr.split(" ");
+    const meridian = meridianRaw.toUpperCase();
+    let [hours, minutes] = time.split(":").map(Number);
+    if (meridian === "PM" && hours !== 12) hours += 12;
+    if (meridian === "AM" && hours === 12) hours = 0;
+    return hours * 3600 + minutes * 60;
+  }
+
+  function formatTimeLabel(timeStr) {
+    const [time, meridianRaw] = timeStr.split(" ");
+    return time + meridianRaw.toLowerCase();
+  }
+
+  function formatCountdown(secondsLeft) {
+    if (secondsLeft < 60 && secondsLeft >= 0) {
+      return "X";
+    }
+    const m = Math.floor(secondsLeft / 60);
+    return `${m}m`;
+  }
+
+  function updateSubtitle() {
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+    document.getElementById("subtitle").textContent = now.toLocaleString('en-US', options);
+  }
+
+  function renderSchedule() {
+    const container = document.getElementById("schedule");
+    container.innerHTML = "";
+    const now = getCurrentTimeInSeconds();
+
+    blocks.forEach(block => {
+      const start = timeToSeconds(block.start);
+      const end = timeToSeconds(block.end);
+      const isActive = now >= start && now < end;
+      const secondsLeft = end - now;
+      const totalSeconds = end - start;
+
+      const countdown = formatCountdown(secondsLeft);
+
+      const segmentSize = 1200; // 20 minutes
+      const totalSegments = Math.max(1, Math.floor(totalSeconds / segmentSize));
+      const horseSegment = Math.min(totalSegments - 1, Math.floor(secondsLeft / segmentSize));
+
+      let progressLine = "| ";
+      for (let i = 0; i < totalSegments; i++) {
+        progressLine += i === horseSegment && isActive ? "🏇" : "-";
+        progressLine += " ";
+      }
+      progressLine += "|";
+
+      const row = document.createElement("div");
+      row.className = "block";
+      if (isActive) {
+        row.style.backgroundColor = block.silk;
+        row.style.color = block.numText;
+      }
+
+      const numCol = document.createElement("div");
+      numCol.className = "num-col";
+      numCol.textContent = block.num;
+      numCol.style.backgroundColor = block.silk;
+      numCol.style.color = block.numText;
+
+      const labelCol = document.createElement("div");
+      labelCol.className = "label-col";
+      labelCol.innerHTML = `
+        <span>${formatTimeLabel(block.start)} - ${formatTimeLabel(block.end)} • ${block.label}</span>
+        <span>${isActive ? `${countdown} ${progressLine}` : ""}</span>
+      `;
+
+      row.appendChild(numCol);
+      row.appendChild(labelCol);
+      container.appendChild(row);
+    });
+  }
+
+  setInterval(() => {
+    document.body.dataset.ping = Date.now();
+  }, 120000);
+
+  setInterval(renderSchedule, 1000);
+  setInterval(updateSubtitle, 1000);
+  renderSchedule();
+  updateSubtitle();
+</script>
+</body>
+</html>
