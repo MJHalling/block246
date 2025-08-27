@@ -31,7 +31,7 @@
   .schedule {
     max-width: 600px;
     margin: 0 auto 40px;
-    border: 1px solid #444;
+    border: 1px solid #444; /* outer border stays */
     border-radius: 8px;
     overflow: hidden;
   }
@@ -40,6 +40,7 @@
     align-items: center;
     padding: 0;
     transition: background-color 0.3s ease;
+    /* removed border-bottom to drop row dividers */
   }
   .num-col {
     width: 60px;
@@ -69,11 +70,11 @@
   <div class="schedule" id="schedule"></div>
 
 <script>
-const blocks = [
-  { num: "2", label: "2nd Period", start: "8:10 AM", end: "9:50 AM", silk: "#FF0100", numText: "#FFF" },
-  { num: "4", label: "4th Period", start: "10:05 AM", end: "11:45 AM", silk: "#0000FF", numText: "#FFF" },
-  { num: "6", label: "6th Period", start: "1:00 PM", end: "2:40 PM", silk: "#008001", numText: "#FFF" }
-];
+  const blocks = [
+    { num: "2", label: "2nd Period", start: "8:10 AM", end: "9:50 AM", silk: "#FFFFFF", numText: "#000" },
+    { num: "4", label: "4th Period", start: "10:05 AM", end: "11:45 AM", silk: "#FFFF00", numText: "#000" },
+    { num: "6", label: "6th Period", start: "1:00 PM", end: "2:40 PM", silk: "#000000", numText: "#FFD700" }
+  ];
 
   function getCurrentTimeInSeconds() {
     const now = new Date();
@@ -159,10 +160,7 @@ const blocks = [
     });
   }
 
-  setInterval(() => {
-    document.body.dataset.ping = Date.now();
-  }, 120000);
-
+  setInterval(() => { document.body.dataset.ping = Date.now(); }, 120000);
   setInterval(renderSchedule, 1000);
   setInterval(updateSubtitle, 1000);
   renderSchedule();
@@ -170,4 +168,3 @@ const blocks = [
 </script>
 </body>
 </html>
-
